@@ -71,8 +71,7 @@
   <script>
     // =================================================================
     // 👇👇👇 ВСТАВЬ ССЫЛКУ С RENDER СЮДА (между кавычек) 👇👇👇
-    const SERVER_URL = "https://bells-a5zq.onrender.com";
-    // Пример: const SERVER_URL = "https://jingle-bot-123.onrender.com";
+    const SERVER_URL = "https://твое-название-на-render.onrender.com";
     // =================================================================
 
     const tg = window.Telegram.WebApp;
@@ -81,8 +80,11 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     
-    // НАСТРОЙКИ ХОЛСТА
-    const W = 2000, H_DRAW = 2200, H_TOTAL = 2660;
+    // НАСТРОЙКИ РАЗМЕРОВ (Оптимизировано для Render Free)
+    // H_DRAW - место для рисования (2200px)
+    // H_TOTAL - общая высота с подвалом (2800px). 
+    // Разница 600px - это место под текст внизу.
+    const W = 2000, H_DRAW = 2200, H_TOTAL = 2800; 
     canvas.width = W; 
     canvas.height = H_DRAW;
 
@@ -300,6 +302,7 @@
       btn.innerText = 'УПАКОВКА...';
 
       const temp = document.createElement('canvas'); 
+      // Используем обновленные размеры
       temp.width = W; 
       temp.height = H_TOTAL;
       const tctx = temp.getContext('2d');
@@ -312,18 +315,23 @@
       tctx.fillStyle = '#000'; 
       tctx.textAlign = 'center';
       
-      tctx.font = 'bold 130px Liter';
-      tctx.fillText(name, W/2, H_TOTAL - 550);
+      // ИЗМЕНЕНИЯ ЗДЕСЬ:
+      // 1. Уменьшил шрифт имени со 130px до 90px
+      // 2. Спустил имя ниже (H_TOTAL - 400)
+      tctx.font = 'bold 90px Liter';
+      tctx.fillText(name, W/2, H_TOTAL - 400);
       
-      tctx.font = '100px Liter';
-      wrapText(tctx, randomWish, W/2, H_TOTAL - 380, 2600, 130);
+      // 3. Уменьшил шрифт пожелания со 100px до 65px
+      // 4. Спустил пожелание еще ниже (H_TOTAL - 250)
+      tctx.font = '65px Liter';
+      wrapText(tctx, randomWish, W/2, H_TOTAL - 250, 1800, 90);
 
+      // Качество 0.5 (оптимально для Render Free)
       const dataUrl = temp.toDataURL('image/jpeg', 0.5);
 
       btn.innerText = 'ОТПРАВКА...';
 
       try {
-        // ВОТ ЗДЕСЬ ИСПОЛЬЗУЕМ ТВОЮ ССЫЛКУ
         const res = await fetch(SERVER_URL + '/upload_image', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
