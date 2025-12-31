@@ -69,13 +69,19 @@
   </div>
 
   <script>
+    // =================================================================
+    // 👇👇👇 ВСТАВЬ ССЫЛКУ С RENDER СЮДА (между кавычек) 👇👇👇
+    const SERVER_URL = "https://bells-a5zq.onrender.com";
+    // Пример: const SERVER_URL = "https://jingle-bot-123.onrender.com";
+    // =================================================================
+
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     
-    // НАСТРОЙКИ ХОЛСТА: Рисуем на 3300, итоговая картинка 4000 (разница 700px - под текст)
+    // НАСТРОЙКИ ХОЛСТА
     const W = 3000, H_DRAW = 3300, H_TOTAL = 4000; 
     canvas.width = W; 
     canvas.height = H_DRAW;
@@ -219,7 +225,6 @@
     function getPos(e) {
       const r = canvas.getBoundingClientRect();
       const t = e.touches ? e.touches[0] : e;
-      // Корректное масштабирование координат
       return { 
         x: (t.clientX - r.left) * (W/r.width), 
         y: (t.clientY - r.top) * (H_DRAW/r.height) 
@@ -228,7 +233,7 @@
 
     let drawing = false, lastX=0, lastY=0;
 
-    // Кисть Баскии (точечные брызги при касании)
+    // Кисть Баскии
     function basquiat(x, y) {
       for (let i=0; i<34; i++) {
         const r = (20 + Math.random()*50), ang = Math.random()*Math.PI*2, dist = r*Math.sqrt(Math.random());
@@ -241,22 +246,19 @@
       ctx.globalAlpha = 1;
     }
 
-    // Обработка рисования
     canvas.onpointerdown = (e) => { 
         e.preventDefault(); 
         drawing=true; 
         const p=getPos(e); 
-        lastX=p.x; 
-        lastY=p.y; 
+        lastX=p.x; lastY=p.y; 
         basquiat(p.x, p.y); 
     };
 
     canvas.onpointermove = (e) => {
       if(!drawing) return;
-      e.preventDefault(); // Важно для предотвращения скролла
+      e.preventDefault();
       const p=getPos(e);
       
-      // Эмуляция дрожащего мелка/кисти
       for(let i=0; i<20; i++){
         const t=i/20, bx=lastX+(p.x-lastX)*t, by=lastY+(p.y-lastY)*t;
         ctx.strokeStyle=curCol; 
@@ -271,7 +273,6 @@
       lastX=p.x; lastY=p.y;
     };
     
-    // Останавливаем рисование
     window.onpointerup = () => drawing=false;
     window.onpointercancel = () => drawing=false;
 
@@ -282,6 +283,13 @@
 
     document.getElementById('saveBtn').onclick = async (e) => {
       e.preventDefault();
+      
+      // ПРОВЕРКА НАЛИЧИЯ ССЫЛКИ
+      if (!SERVER_URL || SERVER_URL === "https://твое-название-на-render.onrender.com") {
+          alert("ОШИБКА: Ты забыл вставить ссылку с Render в код файла index.html!");
+          return;
+      }
+
       tg.HapticFeedback.notificationOccurred('success');
       
       const btn = document.getElementById('saveBtn');
@@ -291,39 +299,32 @@
       btn.disabled = true; 
       btn.innerText = 'УПАКОВКА...';
 
-      // 1. Создаем временный холст полного размера (4000px)
       const temp = document.createElement('canvas'); 
       temp.width = W; 
       temp.height = H_TOTAL;
       const tctx = temp.getContext('2d');
       
-      // 2. Заливаем белым и копируем рисунок
       tctx.fillStyle = '#fff'; 
       tctx.fillRect(0, 0, W, H_TOTAL);
       tctx.drawImage(canvas, 0, 0);
 
-      // 3. Добавляем имя и пожелание в "подвал"
       const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
       tctx.fillStyle = '#000'; 
       tctx.textAlign = 'center';
       
-      // Имя
       tctx.font = 'bold 130px Liter';
       tctx.fillText(name, W/2, H_TOTAL - 550);
       
-      // Пожелание (с переносом строк)
       tctx.font = '100px Liter';
       wrapText(tctx, randomWish, W/2, H_TOTAL - 380, 2600, 130);
 
-      // 4. Генерируем JPEG
       const dataUrl = temp.toDataURL('image/jpeg', 0.8);
 
       btn.innerText = 'ОТПРАВКА...';
 
       try {
-        // ИСПОЛЬЗУЕМ ОТНОСИТЕЛЬНЫЙ ПУТЬ
-        // Это автоматически подставит текущий домен/туннель
-        const res = await fetch('/upload_image', {
+        // ВОТ ЗДЕСЬ ИСПОЛЬЗУЕМ ТВОЮ ССЫЛКУ
+        const res = await fetch(SERVER_URL + '/upload_image', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ 
