@@ -82,7 +82,7 @@
     const ctx = canvas.getContext('2d');
     
     // НАСТРОЙКИ ХОЛСТА
-    const W = 3000, H_DRAW = 3300, H_TOTAL = 4000; 
+    const W = 2000, H_DRAW = 2200, H_TOTAL = 2660;
     canvas.width = W; 
     canvas.height = H_DRAW;
 
@@ -318,7 +318,7 @@
       tctx.font = '100px Liter';
       wrapText(tctx, randomWish, W/2, H_TOTAL - 380, 2600, 130);
 
-      const dataUrl = temp.toDataURL('image/jpeg', 0.8);
+      const dataUrl = temp.toDataURL('image/jpeg', 0.5);
 
       btn.innerText = 'ОТПРАВКА...';
 
